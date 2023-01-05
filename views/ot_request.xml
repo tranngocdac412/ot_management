@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ot_registration_tree" model="ir.ui.view">
+        <field name="name">ot.registration.tree</field>
+        <field name="model">ot.registration</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="project_id"/>
+                <field name="employee_id"/>
+                <field name="manager_id"/>
+                <field name="additional_hours"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="ot_registration_form" model="ir.ui.view">
+        <field name="ot.registration.form"></field>
+        <field name="model">ot.registration</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="draft_request" type="object" string="Reset to Draft" class="oe_highlight" attrs="{'invisible': [('state','!=','refused')]}" confirm="Set OT request to Draft?" modifiers="{'invisible':[['state','!=','refused']]}" options="{}"/>
+                    <button name="action_submit" string="Submit" states="draft" type="object" icon="fa-reply text-warning"/>
+                    <button name="button_pm_approve" string="PM Approve" type="object" states="to_approve" icon="fa-reply text-warning"/>
+                    <button name="button_dl_approve" string="Dl Approve" type="object" states="approved" icon="fa-reply text-warning"/>
+                    <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?"/>
+                    <button name="refuse_request" type="object" string="HR Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?" invisible="1"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <group style="width: 50%; float: left">
+                    <field name="project_id"/>
+                    <field name="manager_id"/>
+                    <field name="ot_month"/>
+                </group>
+                <group style="width: 50%; float: left">
+                    <field name="employee_id"/>
+                    <field name="company_id"/>
+                    <field name="dl_id"/>
+                    <field name="create_date" string="Create Date"/>
+                    <field name="additional_hours"/>
+                </group>
+                <notebook>
+                    <page string="Request Line">
+                        <field name="ot_registration_lines">
+                            <tree editable="bottom">
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                                <field name="category"/>
+                                <field name="is_wfh"/>
+                                <field name="additional_hours"/>
+                                <field name="job_taken"/>
+                                <field name="state"/>
+                                <field name="is_late_approved"/>
+                                <field name="hr_notes"/>
+                                <field name="attendance_notes"/>
+                                <field name="notes"/>
+                            </tree>
+                        </field>
+                    </page>
+                </notebook>
+                <group string="HR Notes">
+<!--		            <field name="hr_notes" nolabel="1" readonly="1"/>-->
+	            </group>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ot_request" model="ir.actions.act_window">
+        <field name="name">OT Registration</field>
+        <field name="res_model">ot.registration</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{}</field>
+    </record>
+</odoo>
