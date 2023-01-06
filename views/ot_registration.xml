@@ -4,14 +4,14 @@
         <field name="name">ot.registration.line.tree</field>
         <field name="model">ot.registration.line</field>
         <field name="arch" type="xml">
-            <tree>
+            <tree create="0">
                 <field name="employee_id"/>
                 <field name="is_intern"/>
                 <field name="project_id"/>
                 <field name="date_from"/>
                 <field name="date_to"/>
                 <field name="category"/>
-                <field name="additional_hours"/>
+                <field name="additional_hours" sum="Total OT"/>
                 <field name="job_taken"/>
                 <field name="is_late_approved"/>
                 <field name="state"/>
@@ -20,10 +20,30 @@
         </field>
     </record>
 
+    <record id="ot_registration_line_search" model="ir.ui.view">
+        <field name="name">ot.registration.line.search</field>
+        <field name="model">ot.registration.line</field>
+        <field name="arch" type="xml">
+            <search string="Search OT registration">
+                <filter string="State: To PM Approve" name="to_pm_approve" domain="[('state', '=', 'to_approve')]"/>
+                <filter string="State: To DL Approve" name="to_dl_approve" domain="[('state', '=', 'approved')]"/>
+                <separator/>
+                <filter string="State: DL Approved" name="dl_approved" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Late Approved" name="late_approved" domain="[('is_late_approved', '=', True)]"/>
+                <group>
+                    <filter string="Month" name="group_by_month" context="{'group_by': 'date_from:month'}"/>
+                    <filter string="Employee" name="group_by_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="action_ot_registration" model="ir.actions.act_window">
         <field name="name">OT Registration Lines</field>
         <field name="res_model">ot.registration.line</field>
         <field name="view_mode">tree</field>
-        <field name="context">{}</field>
+        <field name="context">{'search_default_group_by_month':1, 'search_default_group_by_state':1}</field>
     </record>
 </odoo>

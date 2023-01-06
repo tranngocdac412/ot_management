@@ -23,8 +23,8 @@
                     <button name="draft_request" type="object" string="Reset to Draft" class="oe_highlight" attrs="{'invisible': [('state','!=','refused')]}" confirm="Set OT request to Draft?" modifiers="{'invisible':[['state','!=','refused']]}" options="{}"/>
                     <button name="action_submit" string="Submit" states="draft" type="object" icon="fa-reply text-warning"/>
                     <button name="button_pm_approve" string="PM Approve" type="object" states="to_approve" icon="fa-reply text-warning"/>
-                    <button name="button_dl_approve" string="Dl Approve" type="object" states="approved" icon="fa-reply text-warning"/>
-                    <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?"/>
+                    <button name="button_dl_approve" string="DL Approve" type="object" states="approved" icon="fa-reply text-warning"/>
+                    <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" states="" confirm="Are you sure to Refuse the OT request?" invisible="1"/>
                     <button name="refuse_request" type="object" string="HR Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?" invisible="1"/>
                     <field name="state" widget="statusbar"/>
                 </header>
@@ -43,7 +43,7 @@
                 <notebook>
                     <page string="Request Line">
                         <field name="ot_registration_lines">
-                            <tree editable="bottom">
+                            <tree editable="bottom" decoration-danger="state=='draft'">
                                 <field name="date_from"/>
                                 <field name="date_to"/>
                                 <field name="category"/>
@@ -64,7 +64,7 @@
 	            </group>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>
-                    <field name="activity_ids" widget="mail_activity"/>
+<!--                    <field name="activity_ids" widget="mail_activity"/>-->
                     <field name="message_ids" widget="mail_thread"/>
                 </div>
             </form>
