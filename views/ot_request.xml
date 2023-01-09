@@ -71,6 +71,19 @@
         </field>
     </record>
 
+    <record id="ot_registration_search" model="ir.ui.view">
+        <field name="name">ot.registration.search</field>
+        <field name="model">ot.registration</field>
+        <field name="arch" type="xml">
+            <search>
+                <group>
+                    <filter string="Project" name="project" context="{'group_by': 'project_id'}"/>
+                </group>
+            </search>
+        </field>
+
+    </record>
+
     <record id="action_ot_request" model="ir.actions.act_window">
         <field name="name">OT Registration</field>
         <field name="res_model">ot.registration</field>
