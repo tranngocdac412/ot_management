@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record model="ir.module.category" id="module_category_ot_management">
+        <field name="name">OT Management</field>
+        <field name="description">Category for OT Management</field>
+    </record>
+
+    <record id="group_ot_management_staff" model="res.groups">
+        <field name="name">Staff</field>
+        <field name="category_id" ref="module_category_ot_management"/>
+    </record>
+
+    <record id="group_ot_management_pm" model="res.groups">
+        <field name="name">PM</field>
+        <field name="category_id" ref="module_category_ot_management"/>
+        <field name="implied_ids" eval="[(4, ref('group_ot_management_staff'))]"/>
+    </record>
+
+    <record id="group_ot_management_dl" model="res.groups">
+        <field name="name">DL</field>
+        <field name="category_id" ref="module_category_ot_management"/>
+        <field name="implied_ids" eval="[(4, ref('group_ot_management_pm'))]"/>
+    </record>
+</odoo>
