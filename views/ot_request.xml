@@ -24,7 +24,7 @@
                     <button name="action_submit" string="Submit" states="draft" type="object" icon="fa-reply text-warning"/>
                     <button name="button_pm_approve" string="PM Approve" type="object" states="to_approve" icon="fa-reply text-warning"/>
                     <button name="button_dl_approve" string="DL Approve" type="object" states="approved" icon="fa-reply text-warning"/>
-                    <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" states="" confirm="Are you sure to Refuse the OT request?" invisible="1"/>
+                    <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" attrs="{'invisible':['|',('state', '=', 'draft'), ('state', '=', 'done')]}" confirm="Are you sure to Refuse the OT request?"/>
                     <button name="refuse_request" type="object" string="HR Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?" invisible="1"/>
                     <field name="state" widget="statusbar"/>
                 </header>

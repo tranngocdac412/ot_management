@@ -39,6 +39,18 @@ class OTRegistration(models.Model):
     def action_submit(self):
         self.update_state('to_approve')
 
+    def button_pm_approve(self):
+        self.update_state('approved')
+
+    def button_dl_approve(self):
+        self.update_state('done')
+
+    def refuse_request(self):
+        self.update_state('refused')
+
+    def draft_request(self):
+        self.update_state('draft')
+
     @api.depends('ot_registration_lines')
     def _compute_total_ot(self):
         for record in self:
