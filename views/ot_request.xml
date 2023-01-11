@@ -20,10 +20,10 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="draft_request" type="object" string="Reset to Draft" class="oe_highlight" attrs="{'invisible': [('state','!=','refused')]}" confirm="Set OT request to Draft?" modifiers="{'invisible':[['state','!=','refused']]}" options="{}"/>
-                    <button name="action_submit" string="Submit" states="draft" type="object" icon="fa-reply text-warning"/>
-                    <button name="button_pm_approve" string="PM Approve" type="object" states="to_approve" icon="fa-reply text-warning"/>
-                    <button name="button_dl_approve" string="DL Approve" type="object" states="approved" icon="fa-reply text-warning"/>
+                    <button name="draft_request" type="object" string="Reset to Draft" class="oe_highlight" attrs="{'invisible': [('state','!=','refused')]}" confirm="Set OT request to Draft?" groups="ot_management.group_ot_management_employee"/>
+                    <button name="action_submit" string="Submit" states="draft" type="object" icon="fa-reply text-warning" groups="ot_management.group_ot_management_employee"/>
+                    <button name="button_pm_approve" string="PM Approve" type="object" states="to_approve" icon="fa-reply text-warning" groups="ot_management.group_ot_management_pm"/>
+                    <button name="button_dl_approve" string="DL Approve" type="object" states="approved" icon="fa-reply text-warning" groups="ot_management.group_ot_management_dl"/>
                     <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" attrs="{'invisible':['|',('state', '=', 'draft'), ('state', '=', 'done')]}" confirm="Are you sure to Refuse the OT request?"/>
                     <button name="refuse_request" type="object" string="HR Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?" invisible="1"/>
                     <field name="state" widget="statusbar"/>

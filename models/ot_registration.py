@@ -24,6 +24,18 @@ CATEGORY_DICT = {'normal_day': 'Ngày bình thường',
                  'compensatory_normal': 'Bù ngày lễ vào ngày thường',
                  'compensatory_night': 'Bù ngày lễ vào ban đêm',
                  'unknown': 'Không thể xác định'}
+# CATEGORY = [('normal_day', 'Ngày bình thường'),
+#                  ('normal_day_morning', 'OT ban ngày (6h-8h30)'),
+#                  ('normal_day_night', 'Ngày bình thường - Ban đêm'),
+#                  ('saturday', 'Thứ 7'),
+#                  ('sunday', 'Chủ nhật'),
+#                  ('weekend_day_night', 'Ngày cuối tuần - Ban đêm'),
+#                  ('holiday', 'Ngày lễ'),
+#                  ('holiday_day_night', 'Ngày lễ - Ban đêm'),
+#                  ('compensatory_normal', 'Bù ngày lễ vào ngày thường'),
+#                  ('compensatory_night', 'Bù ngày lễ vào ban đêm'),
+#                  ('unknown', 'Không thể xác định')]
+
 class OTRegistration(models.Model):
     _name = 'ot.registration'
     _rec_name = 'employee_id'
@@ -147,7 +159,7 @@ class OTRegistrationLine(models.Model):
                 if time_type == 'morning':
                     record.category = 'normal_day_morning'
                 elif time_type == 'normal':
-                    record.category = 'normal'
+                    record.category = 'normal_day'
                 elif time_type == 'night':
                     record.category = 'normal_day_night'
                 else:
