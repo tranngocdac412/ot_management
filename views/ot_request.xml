@@ -20,14 +20,40 @@
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="draft_request" type="object" string="Reset to Draft" class="oe_highlight" attrs="{'invisible': [('state','!=','refused')]}" confirm="Set OT request to Draft?" groups="ot_management.group_ot_management_employee"/>
-                    <button name="action_submit" string="Submit" states="draft" type="object" icon="fa-reply text-warning" groups="ot_management.group_ot_management_employee"/>
-                    <button name="button_pm_approve" string="PM Approve" type="object" states="to_approve" icon="fa-reply text-warning" groups="ot_management.group_ot_management_pm"/>
-                    <button name="button_dl_approve" string="DL Approve" type="object" states="approved" icon="fa-reply text-warning" groups="ot_management.group_ot_management_dl"/>
-                    <button name="refuse_request" type="object" string="Refuse" class="oe_highlight" attrs="{'invisible':['|',('state', '=', 'draft'), ('state', '=', 'done')]}" confirm="Are you sure to Refuse the OT request?"/>
-                    <button name="refuse_request" type="object" string="HR Refuse" class="oe_highlight" confirm="Are you sure to Refuse the OT request?" invisible="1"/>
+                    <!--                    <button name="draft_request" type="object" string="Reset to Draft" class="oe_highlight" states="refused" confirm="Set OT request to Draft?" groups="ot_management.group_ot_management_employee"/>-->
+                    <!--                    <button name="draft_request" type="object" string="Reset to Draft" class="oe_highlight" attrs="{'invisible': [('state','!=','refused')]}" confirm="Set OT request to Draft?" groups="ot_management.group_ot_management_employee"/>-->
+                    <button name="draft_request" type="object" string="Reset to Draft" class="oe_highlight"
+                            attrs="{'invisible': ['|',('is_own', '=', False), ('state', '!=', 'refused')]}"
+                            confirm="Set OT request to Draft?"
+                            />
+                    <button name="action_submit" string="Submit" states="draft" type="object"
+                            icon="fa-reply text-warning" groups="ot_management.group_ot_management_employee"/>
+                    <button name="button_pm_approve" string="PM Approve" type="object"
+                            attrs="{'invisible': ['|',('user_group','!=','pm'), ('state', '!=', 'to_approve')]}"
+                            icon="fa-reply text-warning" groups="ot_management.group_ot_management_pm"/>
+                    <button name="button_dl_approve" string="DL Approve" type="object"
+                            attrs="{'invisible': ['|',('user_group','!=','dl'), ('state', '!=', 'approved')]}"
+                            icon="fa-reply text-warning" groups="ot_management.group_ot_management_dl"/>
+                    <button name="refuse_request" type="object" string="Refuse" class="oe_highlight"
+                            groups="ot_management.group_ot_management_pm"
+                            attrs="{'invisible':[
+                            '&amp;',
+                            '|',
+                            ('state', '!=', 'to_approve'),
+                            ('user_group','!=','pm'),
+                            '|',
+                            ('state', '!=', 'approved'),
+                            ('user_group','!=','dl')
+                            ]}"
+                            confirm="Are you sure to Refuse the OT request?"/>
+<!--                    <button name="refuse_request" type="object" string="HR Refuse" class="oe_highlight"-->
+<!--                            confirm="Are you sure to Refuse the OT request?" invisible="1"/>-->
                     <field name="state" widget="statusbar"/>
                 </header>
+                <group invisible="1">
+                    <field name="is_own"/>
+                    <field name="user_group"/>
+                </group>
                 <group>
                     <group>
                         <field name="project_id"/>
@@ -62,11 +88,11 @@
                     </page>
                 </notebook>
                 <group string="HR Notes">
-<!--		            <field name="hr_notes" nolabel="1" readonly="1"/>-->
-	            </group>
+                    <!--		            <field name="hr_notes" nolabel="1" readonly="1"/>-->
+                </group>
                 <div class="oe_chatter">
                     <field name="message_follower_ids" widget="mail_followers"/>
-<!--                    <field name="activity_ids" widget="mail_activity"/>-->
+                    <!--                    <field name="activity_ids" widget="mail_activity"/>-->
                     <field name="message_ids" widget="mail_thread"/>
                 </div>
             </form>

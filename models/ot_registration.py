@@ -42,23 +42,25 @@ class OTRegistration(models.Model):
     _description = 'OT Registration'
     _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    def update_state(self, state):
-        for record in self:
-            record.state = state
-        for record in self.env['ot.registration.line'].sudo().search([('ot_registration_id', '=', self.id)]):
-            record.state = state
-
     def action_submit(self):
-        self.update_state('to_approve')
+        for record in self:
+            if record.env.user.has_group('ot_management.group_ot_management_employee'):
+                record.state = 'to_approve'
 
     def button_pm_approve(self):
-        self.update_state('approved')
+        for record in self:
+            if record.env.user.has_group('ot_management.group_ot_management_pm') and record.state == 'to_approve':
+                record.state = 'approved'
 
     def button_dl_approve(self):
-        self.update_state('done')
+        for record in self:
+            if record.env.user.has_group('ot_management.group_ot_management_dl'):
+                record.state = 'done'
 
     def refuse_request(self):
-        self.update_state('refused')
+        for record in self:
+            if record.env.user.has_group('ot_management.group_ot_management_pm') and record.state != 'draft':
+                record.state = 'refused'
 
     def draft_request(self):
         self.update_state('draft')
@@ -73,6 +75,19 @@ class OTRegistration(models.Model):
     def get_user(self):
         return self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
 
+    def check_create_id(self):
+        for record in self:
+            record.is_own = record.create_uid.id == self._uid
+
+    def get_user_group(self):
+        for record in self:
+            if self.env.user.has_group('ot_management.group_ot_management_employee'):
+                record.user_group = 'employee'
+            if self.env.user.has_group('ot_management.group_ot_management_pm'):
+                record.user_group = 'pm'
+            if self.env.user.has_group('ot_management.group_ot_management_dl'):
+                record.user_group = 'dl'
+
     project_id = fields.Many2one('project.project', string='Project')
     manager_id = fields.Many2one('hr.employee', string='Approver')
     ot_month = fields.Date(string='OT Month', readonly=True)
@@ -84,7 +99,8 @@ class OTRegistration(models.Model):
                              string='State', default='draft', readonly=True)
     ot_registration_lines = fields.One2many('ot.registration.line', 'ot_registration_id',
                                             string='OT Registration Lines')
-
+    is_own = fields.Boolean(compute='check_create_id')
+    user_group = fields.Char(compute='get_user_group')
 
 class OTRegistrationLine(models.Model):
     _name = 'ot.registration.line'
@@ -106,17 +122,17 @@ class OTRegistrationLine(models.Model):
         if datetime.datetime(date_from.year, date_from.month, date_from.day, 18, 30, 0, 0) \
                 <= date_from \
                 < date_to \
-                <= datetime.datetime(date_from.year, date_from.month, date_from.day, 22, 00, 0, 0):
+                <= datetime.datetime(date_from.year, date_from.month, date_from.day, 22, 0, 0, 0):
             return 'normal'
         if datetime.datetime(date_from.year, date_from.month, date_from.day, 6, 0, 0, 0) \
                 <= date_from \
                 < date_to \
-                <= datetime.datetime(date_from.year, date_from.month, date_from.day, 22, 00, 0, 0):
+                <= datetime.datetime(date_from.year, date_from.month, date_from.day, 22, 0, 0, 0):
             return 'day'
         if datetime.datetime(date_from.year, date_from.month, date_from.day, 22, 0, 0, 0) \
                 <= date_from \
                 < date_to \
-                <= datetime.datetime(date_from.year, date_from.month, date_from.day + 1, 6, 00, 0, 0):
+                <= datetime.datetime(date_from.year, date_from.month, date_from.day + 1, 6, 0, 0, 0):
             return 'night'
         return 'unknown'
     def date_type(self, date_from, date_to):
