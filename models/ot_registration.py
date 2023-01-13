@@ -3,7 +3,7 @@ import holidays
 
 import pytz
 from odoo import models, fields, api, _
-from odoo.exceptions import ValidationError
+from odoo.exceptions import ValidationError, UserError
 
 SECONDS_PER_HOUR = 3600
 
@@ -24,6 +24,8 @@ CATEGORY_DICT = {'normal_day': 'Ngày bình thường',
                  'compensatory_normal': 'Bù ngày lễ vào ngày thường',
                  'compensatory_night': 'Bù ngày lễ vào ban đêm',
                  'unknown': 'Không thể xác định'}
+
+
 # CATEGORY = [('normal_day', 'Ngày bình thường'),
 #                  ('normal_day_morning', 'OT ban ngày (6h-8h30)'),
 #                  ('normal_day_night', 'Ngày bình thường - Ban đêm'),
@@ -41,6 +43,12 @@ class OTRegistration(models.Model):
     _rec_name = 'employee_id'
     _description = 'OT Registration'
     _inherit = ['mail.thread', 'mail.activity.mixin']
+
+    @api.constrains('additional_hours')
+    def check_lines(self):
+        for record in self:
+            if not record.additional_hours:
+                raise UserError(_('Cannot submit without OT line'))
 
     def action_submit(self):
         for record in self:
@@ -78,6 +86,19 @@ class OTRegistration(models.Model):
                 if item.additional_hours:
                     record.additional_hours += item.additional_hours
 
+    # @api.onchange('project_id')
+    # def onchange_manager_id(self):
+    #     for rec in self:
+    #         rec.manager_id = rec.project_id.project_manager_id.id
+
+    # @api.depends('project_id')
+    # def compute_project_manager_id(self):
+    #     for record in self:
+    #         record.project_manager_id = self.env['hr.employee'].search([('user_id', '=', record.project_id.user_id.id)])
+
+    def get_default_manager(self):
+        pass
+    
     def get_user(self):
         return self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
 
@@ -95,7 +116,7 @@ class OTRegistration(models.Model):
                 record.user_group = 'dl'
 
     project_id = fields.Many2one('project.project', string='Project')
-    manager_id = fields.Many2one('hr.employee', string='Approver')
+    manager_id = fields.Many2one('hr.employee', string='Approver', default=lambda self: self.get_default_manager())
     ot_month = fields.Date(string='OT Month', readonly=True)
     employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True, default=lambda self: self.get_user())
     company_id = fields.Many2one('res.company', string='Company')
@@ -108,6 +129,7 @@ class OTRegistration(models.Model):
     is_own = fields.Boolean(compute='check_create_id')
     user_group = fields.Char(compute='get_user_group')
 
+
 class OTRegistrationLine(models.Model):
     _name = 'ot.registration.line'
     _description = 'OT Registration Line'
@@ -116,9 +138,11 @@ class OTRegistrationLine(models.Model):
     def _check_category(self):
         for record in self:
             if record.category == 'unknown':
-                raise ValidationError(_('Category khong hop le'))
+                raise ValidationError(_('Category is not valid'))
+
     def compute_is_late_approved(self):
         pass
+
     def time_type(self, date_from, date_to):
         if datetime.datetime(date_from.year, date_from.month, date_from.day, 6, 0, 0, 0) \
                 <= date_from \
@@ -141,6 +165,7 @@ class OTRegistrationLine(models.Model):
                 <= datetime.datetime(date_from.year, date_from.month, date_from.day + 1, 6, 0, 0, 0):
             return 'night'
         return 'unknown'
+
     def date_type(self, date_from, date_to):
         vi_holidays = holidays.VN()
         if date_from in vi_holidays or date_to in vi_holidays:
@@ -156,22 +181,24 @@ class OTRegistrationLine(models.Model):
         for record in self:
             date_type = self.date_type(self.tz_utc_to_local(record.date_from), self.tz_utc_to_local(record.date_to))
             time_type = self.time_type(self.tz_utc_to_local(record.date_from), self.tz_utc_to_local(record.date_to))
+            print(date_type)
+            print(time_type)
             if date_type == 'holiday':
-                if time_type == 'morning' or 'normal' or 'day':
+                if time_type == ('morning' or 'normal' or 'day'):
                     record.category = 'holiday'
                 elif time_type == 'night':
                     record.category = 'holiday_day_night'
                 else:
                     record.category = 'unknown'
             elif date_type == 'saturday':
-                if time_type == 'morning' or 'normal' 'day':
+                if time_type == ('morning' or 'normal' or 'day'):
                     record.category = 'saturday'
                 elif time_type == 'night':
                     record.category = 'weekend_day_night'
                 else:
                     record.category = 'unknown'
             elif date_type == 'sunday':
-                if time_type == 'morning' or 'normal' or 'day':
+                if time_type == ('morning' or 'normal' or 'day'):
                     record.category = 'sunday'
                 elif time_type == 'night':
                     record.category = 'weekend_day_night'
@@ -186,6 +213,7 @@ class OTRegistrationLine(models.Model):
                     record.category = 'normal_day_night'
                 else:
                     record.category = 'unknown'
+
     @api.depends('date_from', 'date_to', 'category')
     def _compute_ot_hours(self):
         for record in self:
@@ -211,9 +239,10 @@ class OTRegistrationLine(models.Model):
     is_intern = fields.Boolean(string='Is intern', default=False)
     additional_hours = fields.Float(string='Total OT', readonly=True, compute='_compute_ot_hours', store=True)
     job_taken = fields.Char(string='Job Taken', default='N/A')
-    is_late_approved = fields.Boolean(string='Late Approved', readonly=True, compute='compute_is_late_approved', store=True)
+    is_late_approved = fields.Boolean(string='Late Approved', readonly=True, compute='compute_is_late_approved',
+                                      store=True)
     hr_notes = fields.Text(string='HR Notes', readonly=True)
     attendance_notes = fields.Text(string='Attendance Notes', readonly=True)
     notes = fields.Char(string='Warning', default='Exceed OT plan', readonly=True)
-    state = fields.Selection([(key, value) for key, value in STATES_DICT.items()],
-                             string='State', default='draft', readonly=True, store=True)
+    state = fields.Selection([(key, value) for key, value in STATES_DICT.items()], related='ot_registration_id.state',
+                             string='State', readonly=True, store=True)
