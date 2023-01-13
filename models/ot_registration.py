@@ -44,7 +44,11 @@ class OTRegistration(models.Model):
 
     def action_submit(self):
         for record in self:
-            if record.env.user.has_group('ot_management.group_ot_management_employee'):
+            if record.env.user.has_group('ot_management.group_ot_management_dl'):
+                record.state = 'done'
+            elif record.env.user.has_group('ot_management.group_ot_management_pm'):
+                record.state = 'approved'
+            elif record.env.user.has_group('ot_management.group_ot_management_employee'):
                 record.state = 'to_approve'
 
     def button_pm_approve(self):
@@ -63,7 +67,9 @@ class OTRegistration(models.Model):
                 record.state = 'refused'
 
     def draft_request(self):
-        self.update_state('draft')
+        for record in self:
+            if record.is_own and record.state == 'refused':
+                record.state = 'draft'
 
     @api.depends('ot_registration_lines')
     def _compute_total_ot(self):
