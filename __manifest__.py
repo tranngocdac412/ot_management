@@ -9,6 +9,8 @@
         'security/security.xml',
         'security/ir.model.access.csv',
 
+        'data/data.xml',
+
         'views/ot_registration.xml',
         'views/ot_request.xml',
 

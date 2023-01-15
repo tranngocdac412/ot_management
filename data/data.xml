@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+        <record id="user_dl1" model="res.users">
+            <field name="name">dl1</field>
+            <field name="login">dl1</field>
+            <field name="password">1234</field>
+        </record>
+
+        <record id="dl1" model="hr.employee">
+            <field name="name">dl1</field>
+            <field name="user_id" ref="user_dl1"/>
+        </record>
+
+        <record id="user_pm1" model="res.users">
+            <field name="name">pm1</field>
+            <field name="login">pm1</field>
+            <field name="password">1234</field>
+        </record>
+
+        <record id="pm1" model="hr.employee">
+            <field name="name">pm1</field>
+            <field name="parent_id" ref="dl1"/>
+            <field name="user_id" ref="user_pm1"/>
+        </record>
+
+        <record id="user_em1" model="res.users">
+            <field name="name">em1</field>
+            <field name="login">em1</field>
+            <field name="password">1234</field>
+        </record>
+
+        <record id="employee1" model="hr.employee">
+            <field name="name">em1</field>
+            <field name="parent_id" ref="dl1"/>
+            <field name="user_id" ref="user_em1"/>
+        </record>
+
+        <record id="user_dl2" model="res.users">
+            <field name="name">dl2</field>
+            <field name="login">dl2</field>
+            <field name="password">1234</field>
+        </record>
+
+        <record id="dl2" model="hr.employee">
+            <field name="name">dl2</field>
+            <field name="user_id" ref="user_dl2"/>
+        </record>
+
+        <record id="user_pm2" model="res.users">
+            <field name="name">pm2</field>
+            <field name="login">pm2</field>
+            <field name="password">1234</field>
+        </record>
+
+        <record id="user_pm2" model="hr.employee">
+            <field name="name">pm2</field>
+            <field name="parent_id" ref="dl2"/>
+            <field name="user_id" ref="user_pm2"/>
+        </record>
+
+        <record id="user_em2" model="res.users">
+            <field name="name">em2</field>
+            <field name="login">em2</field>
+            <field name="password">1234</field>
+        </record>
+
+        <record id="employee2" model="hr.employee">
+            <field name="name">em2</field>
+            <field name="parent_id" ref="dl2"/>
+            <field name="user_id" ref="user_em2"/>
+        </record>
+    </data>
+</odoo>
