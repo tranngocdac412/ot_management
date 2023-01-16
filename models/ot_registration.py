@@ -56,25 +56,33 @@ class OTRegistration(models.Model):
                 record.state = 'done'
             elif record.env.user.has_group('ot_management.group_ot_management_pm'):
                 record.state = 'approved'
+                self.send_mail('new_request_to_dl_template')
             elif record.env.user.has_group('ot_management.group_ot_management_employee'):
                 record.state = 'to_approve'
-            self.send_mail_emp_to_dl()
+                self.send_mail('new_request_to_pm_template')
 
     def button_pm_approve(self):
         for record in self:
             if record.env.user.has_group('ot_management.group_ot_management_pm') and record.state == 'to_approve':
                 record.state = 'approved'
+                self.send_mail('new_request_to_dl_template')
 
     def button_dl_approve(self):
         for record in self:
             if record.env.user.has_group('ot_management.group_ot_management_dl'):
                 record.state = 'done'
+                self.send_mail('request_done_template')
 
     def refuse_request(self):
         for record in self:
-            if record.env.user.has_group('ot_management.group_ot_management_pm') \
+            if record.env.user.has_group('ot_management.group_ot_management_dl') \
                     and record.state not in ['draft', 'done']:
                 record.state = 'refused'
+                self.send_mail('dl_refuse_request_template')
+            elif record.env.user.has_group('ot_management.group_ot_management_pm') \
+                    and record.state not in ['draft', 'done']:
+                record.state = 'refused'
+                self.send_mail('pm_refuse_request_template')
 
     def draft_request(self):
         for record in self:
@@ -134,14 +142,14 @@ class OTRegistration(models.Model):
     #     template.send_mail(self.id, force_send=True)
 
     @api.multi
-    def send_mail_emp_to_dl(self):
-        template = self.env.ref('ot_management.new_request_template')
-        for r in self:
-            self.env['mail.template'].browse(template.id).send_mail(r.id)
+    def send_mail(self, mail_template):
+        template = self.env.ref('ot_management.' + mail_template)
+        for record in self:
+            self.env['mail.template'].browse(template.id).send_mail(record.id)
 
-    project_id = fields.Many2one('project.project', string='Project')
+    project_id = fields.Many2one('project.project', string='Project', required=True)
     manager_id = fields.Many2one('hr.employee', string='Approver', readonly=False,
-                                 compute='get_project_manager', store=True)
+                                 compute='get_project_manager', store=True, required=True)
     ot_month = fields.Date(string='OT Month', readonly=True)
     employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True, default=lambda self: self.get_user())
     department_leader_id = fields.Many2one('hr.employee', string='Department lead', readonly=True,
