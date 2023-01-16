@@ -77,5 +77,10 @@
             <field name="parent_id" ref="dl2"/>
             <field name="user_id" ref="user_em2"/>
         </record>
+
+        <record id="project" model="project.project">
+            <field name="name">Project 1</field>
+            <field name="user_id" ref="user_pm1"/>
+        </record>
     </data>
 </odoo>
