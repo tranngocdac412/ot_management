@@ -10,6 +10,7 @@
         'security/ir.model.access.csv',
 
         'data/data.xml',
+        'data/email_template.xml',
 
         'views/ot_registration.xml',
         'views/ot_request.xml',

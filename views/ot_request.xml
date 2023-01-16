@@ -15,7 +15,7 @@
     </record>
 
     <record id="ot_registration_form" model="ir.ui.view">
-        <field name="ot.registration.form"></field>
+        <field name="name">ot.registration.form</field>
         <field name="model">ot.registration</field>
         <field name="arch" type="xml">
             <form>
@@ -62,15 +62,14 @@
                     </group>
                     <group>
                         <field name="employee_id"/>
-                        <field name="company_id"/>
-                        <field name="dl_id"/>
+                        <field name="department_leader_id"/>
                         <field name="create_date" string="Create Date"/>
                         <field name="additional_hours"/>
                     </group>
                 </group>
                 <notebook>
                     <page string="Request Line">
-                        <field name="ot_registration_lines">
+                        <field name="ot_registration_line_ids">
                             <tree editable="bottom" decoration-danger="state=='draft'">
                                 <field name="date_from"/>
                                 <field name="date_to"/>

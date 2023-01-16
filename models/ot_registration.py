@@ -71,7 +71,8 @@ class OTRegistration(models.Model):
 
     def refuse_request(self):
         for record in self:
-            if record.env.user.has_group('ot_management.group_ot_management_pm') and record.state != 'draft':
+            if record.env.user.has_group('ot_management.group_ot_management_pm') \
+                    and record.state not in ['draft', 'done']:
                 record.state = 'refused'
 
     def draft_request(self):
@@ -79,12 +80,13 @@ class OTRegistration(models.Model):
             if record.is_own and record.state == 'refused':
                 record.state = 'draft'
 
-    @api.depends('ot_registration_lines')
+    @api.depends('ot_registration_line_ids')
     def _compute_total_ot(self):
         for record in self:
-            for item in record.ot_registration_lines:
-                if item.additional_hours:
-                    record.additional_hours += item.additional_hours
+            record.additional_hours = sum(record.ot_registration_line_ids.mapped('additional_hours'))
+            # for item in record.ot_registration_line_ids:
+            #     if item.additional_hours:
+            #         record.additional_hours += item.additional_hours
 
     # @api.onchange('project_id')
     # def onchange_manager_id(self):
@@ -96,9 +98,15 @@ class OTRegistration(models.Model):
     #     for record in self:
     #         record.project_manager_id = self.env['hr.employee'].search([('user_id', '=', record.project_id.user_id.id)])
 
-    def get_default_manager(self):
-        pass
-    
+    def get_default_department_leader(self):
+        return self.env['hr.employee'].sudo().search([('user_id', '=', self.env.user.id)], limit=1).parent_id
+
+    @api.depends('project_id')
+    def get_project_manager(self):
+        for record in self:
+            record.manager_id = self.env['hr.employee'].sudo()\
+                .search([('user_id.id', '=', record.project_id.user_id.id)], limit=1)
+
     def get_user(self):
         return self.env['hr.employee'].sudo().search([('user_id', '=', self._uid)], limit=1)
 
@@ -108,24 +116,25 @@ class OTRegistration(models.Model):
 
     def get_user_group(self):
         for record in self:
-            if self.env.user.has_group('ot_management.group_ot_management_employee'):
-                record.user_group = 'employee'
-            if self.env.user.has_group('ot_management.group_ot_management_pm'):
-                record.user_group = 'pm'
             if self.env.user.has_group('ot_management.group_ot_management_dl'):
                 record.user_group = 'dl'
+            elif self.env.user.has_group('ot_management.group_ot_management_pm'):
+                record.user_group = 'pm'
+            elif self.env.user.has_group('ot_management.group_ot_management_employee'):
+                record.user_group = 'employee'
 
     project_id = fields.Many2one('project.project', string='Project')
-    manager_id = fields.Many2one('hr.employee', string='Approver', default=lambda self: self.get_default_manager())
+    manager_id = fields.Many2one('hr.employee', string='Approver', readonly=False,
+                                 compute='get_project_manager', store=True)
     ot_month = fields.Date(string='OT Month', readonly=True)
     employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True, default=lambda self: self.get_user())
-    company_id = fields.Many2one('res.company', string='Company')
-    dl_id = fields.Many2one('hr.employee', string='Department lead', readonly=True, default=2)
+    department_leader_id = fields.Many2one('hr.employee', string='Department lead', readonly=True,
+                                           default=lambda self: self.get_default_department_leader())
     additional_hours = fields.Float(string='Total OT', readonly=True, compute='_compute_total_ot', store=True)
     state = fields.Selection([(key, value) for key, value in STATES_DICT.items()],
                              string='State', default='draft', readonly=True)
-    ot_registration_lines = fields.One2many('ot.registration.line', 'ot_registration_id',
-                                            string='OT Registration Lines')
+    ot_registration_line_ids = fields.One2many('ot.registration.line', 'ot_registration_id',
+                                               string='OT Registration Lines')
     is_own = fields.Boolean(compute='check_create_id')
     user_group = fields.Char(compute='get_user_group')
 
@@ -184,21 +193,21 @@ class OTRegistrationLine(models.Model):
             print(date_type)
             print(time_type)
             if date_type == 'holiday':
-                if time_type == ('morning' or 'normal' or 'day'):
+                if time_type in ['morning', 'normal', 'day']:
                     record.category = 'holiday'
                 elif time_type == 'night':
                     record.category = 'holiday_day_night'
                 else:
                     record.category = 'unknown'
             elif date_type == 'saturday':
-                if time_type == ('morning' or 'normal' or 'day'):
+                if time_type in ['morning', 'normal', 'day']:
                     record.category = 'saturday'
                 elif time_type == 'night':
                     record.category = 'weekend_day_night'
                 else:
                     record.category = 'unknown'
             elif date_type == 'sunday':
-                if time_type == ('morning' or 'normal' or 'day'):
+                if time_type in ['morning', 'normal', 'day']:
                     record.category = 'sunday'
                 elif time_type == 'night':
                     record.category = 'weekend_day_night'

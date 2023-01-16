@@ -23,6 +23,28 @@
         <field name="implied_ids" eval="[(4, ref('group_ot_management_pm'))]"/>
     </record>
 
+    <record id="user_request_rule" model="ir.rule">
+        <field name="name">Own request</field>
+        <field name="model_id" ref="model_ot_registration_line"/>
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_ot_management_employee'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+        <field name="perm_create" eval="1"/>
+    </record>
+
+    <record id="user_request_line_rule" model="ir.rule">
+        <field name="name">Own request line</field>
+        <field name="model_id" ref="model_ot_registration_line"/>
+        <field name="domain_force">[('create_uid', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('group_ot_management_employee'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="1"/>
+        <field name="perm_create" eval="1"/>
+    </record>
+
     <record id="employee_request_line_rule" model="ir.rule">
         <field name="name">See only own request lines</field>
         <field name="model_id" ref="model_ot_registration_line"/>
@@ -48,34 +70,56 @@
     <record id="pm_request_rule" model="ir.rule">
         <field name="name">PM see request</field>
         <field name="model_id" ref="model_ot_registration"/>
-        <field name="domain_force">[('state', '!=', 'draft')]</field>
+<!--        <field name="domain_force">[('state', '!=', 'draft')]</field>-->
+        <field name="domain_force">['|', ('create_uid', '=', user.id), '&amp;', ('project_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
+<!--        <field name="domain_force"></field>-->
         <field name="groups" eval="[(4, ref('group_ot_management_pm'))]"/>
         <field name="perm_read" eval="1"/>
         <field name="perm_write" eval="1"/>
-        <field name="perm_unlink" eval="1"/>
-        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_create" eval="0"/>
+    </record>
+
+    <record id="pm_request_line_rule" model="ir.rule">
+        <field name="name">PM see request line</field>
+        <field name="model_id" ref="model_ot_registration_line"/>
+<!--        <field name="domain_force">[('state', '!=', 'draft')]</field>-->
+<!--        <field name="domain_force">-->
+<!--            ['|',-->
+<!--            ('create_uid', '=', user.id),-->
+<!--            '&amp;',-->
+<!--            ('ot_registration_id.project_id.project_manager_id.user_id.id', '=', user.id),-->
+<!--            ('state', '!=', 'draft')]</field>-->
+        <field name="domain_force">['|', ('create_uid', '=', user.id), '&amp;', ('ot_registration_id.project_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
+        <field name="groups" eval="[(4, ref('group_ot_management_pm'))]"/>
+        <field name="perm_read" eval="1"/>
+        <field name="perm_write" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_create" eval="0"/>
     </record>
 
     <record id="dl_request_rule" model="ir.rule">
         <field name="name">DL see all request</field>
         <field name="model_id" ref="model_ot_registration"/>
-        <field name="domain_force">[('state', '!=', 'draft')]</field>
+<!--        <field name="domain_force">[('state', '!=', 'draft')]</field>-->
+        <field name="domain_force">['|', ('create_uid', '=', user.id), '&amp;', ('department_leader_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
         <field name="groups" eval="[(4, ref('group_ot_management_dl'))]"/>
         <field name="perm_read" eval="1"/>
         <field name="perm_write" eval="1"/>
-        <field name="perm_unlink" eval="1"/>
-        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_create" eval="0"/>
     </record>
 
-    <record id="pm_dl_request_line_rule" model="ir.rule">
-        <field name="name">See all request lines</field>
+    <record id="dl_request_line_rule" model="ir.rule">
+        <field name="name">DL see all request line</field>
         <field name="model_id" ref="model_ot_registration_line"/>
-        <field name="domain_force">[('state', '!=', 'draft')]</field>
-        <field name="groups" eval="[(4, ref('group_ot_management_pm', 'group_ot_management_dl'))]"/>
+<!--        <field name="domain_force">[('state', '!=', 'draft')]</field>-->
+        <field name="domain_force">['|', ('create_uid', '=', user.id), '&amp;', ('ot_registration_id.department_leader_id.user_id.id', '=', user.id), ('state', '!=', 'draft')]</field>
+        <field name="groups" eval="[(4, ref('group_ot_management_dl'))]"/>
         <field name="perm_read" eval="1"/>
         <field name="perm_write" eval="1"/>
-        <field name="perm_unlink" eval="1"/>
-        <field name="perm_create" eval="1"/>
+        <field name="perm_unlink" eval="0"/>
+        <field name="perm_create" eval="0"/>
     </record>
 
 </odoo>

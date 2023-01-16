@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
     <menuitem id="ot_root" name="OT Management"/>
-    <menuitem id="ot_plan" name="OT Plan" parent="ot_root" action=""/>
     <menuitem id="ot_registration" name="My OT Registration" parent="ot_root"/>
-    <menuitem id="ot_request_to_approve" name="OT Request To Approve" parent="ot_root" action=""/>
 
     <menuitem id="ot_registration_details" name="OT Registration Details" parent="ot_registration" action="action_ot_registration"/>
     <menuitem id="ot_request" name="OT Request" parent="ot_registration" action="action_ot_request"/>

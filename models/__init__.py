@@ -1,1 +1,1 @@
-from . import ot_registration, project
+from . import ot_registration
