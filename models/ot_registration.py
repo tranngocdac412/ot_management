@@ -7,6 +7,15 @@ from odoo.exceptions import ValidationError, UserError
 
 SECONDS_PER_HOUR = 3600
 
+TIME_TYPE_MORNING_FROM = datetime.time(6, 0, 0)
+TIME_TYPE_MORNING_TO = datetime.time(8, 30, 0)
+TIME_TYPE_NORMAL_FROM = datetime.time(18, 30, 0)
+TIME_TYPE_NORMAL_TO = datetime.time(22, 0, 0)
+TIME_TYPE_DAY_FROM = datetime.time(6, 0, 0)
+TIME_TYPE_DAY_TO = datetime.time(22, 0, 0)
+TIME_TYPE_NIGHT_FROM = datetime.time(22, 0, 0)
+TIME_TYPE_NIGHT_TO = datetime.time(6, 0, 0)
+
 STATES_DICT = {'draft': 'Draft',
                'to_approve': 'To Approve',
                'approved': 'PM Approved',
@@ -114,7 +123,7 @@ class OTRegistration(models.Model):
     @api.depends('project_id')
     def get_project_manager(self):
         for record in self:
-            record.manager_id = self.env['hr.employee'].sudo()\
+            record.manager_id = self.env['hr.employee'].sudo() \
                 .search([('user_id.id', '=', record.project_id.user_id.id)], limit=1)
 
     def get_user(self):
@@ -184,25 +193,35 @@ class OTRegistrationLine(models.Model):
         pass
 
     def time_type(self, date_from, date_to):
-        if datetime.datetime(date_from.year, date_from.month, date_from.day, 6, 0, 0, 0) \
+        print(date_from)
+        print(date_to)
+        if datetime.datetime(date_from.year, date_from.month, date_from.day, TIME_TYPE_MORNING_FROM.hour,
+                             TIME_TYPE_MORNING_FROM.minute, TIME_TYPE_MORNING_FROM.second) \
                 <= date_from \
                 < date_to \
-                <= datetime.datetime(date_from.year, date_from.month, date_from.day, 8, 30, 0, 0):
+                <= datetime.datetime(date_from.year, date_from.month, date_from.day, TIME_TYPE_MORNING_TO.hour,
+                                     TIME_TYPE_MORNING_TO.minute, TIME_TYPE_MORNING_TO.second):
             return 'morning'
-        if datetime.datetime(date_from.year, date_from.month, date_from.day, 18, 30, 0, 0) \
+        if datetime.datetime(date_from.year, date_from.month, date_from.day, TIME_TYPE_NORMAL_FROM.hour,
+                             TIME_TYPE_NORMAL_FROM.minute, TIME_TYPE_NORMAL_FROM.second) \
                 <= date_from \
                 < date_to \
-                <= datetime.datetime(date_from.year, date_from.month, date_from.day, 22, 0, 0, 0):
+                <= datetime.datetime(date_from.year, date_from.month, TIME_TYPE_NORMAL_TO.hour,
+                                     TIME_TYPE_NORMAL_TO.minute, TIME_TYPE_NORMAL_TO.second):
             return 'normal'
-        if datetime.datetime(date_from.year, date_from.month, date_from.day, 6, 0, 0, 0) \
+        if datetime.datetime(date_from.year, date_from.month, date_from.day, TIME_TYPE_DAY_FROM.hour,
+                             TIME_TYPE_DAY_FROM.minute, TIME_TYPE_DAY_FROM.second) \
                 <= date_from \
                 < date_to \
-                <= datetime.datetime(date_from.year, date_from.month, date_from.day, 22, 0, 0, 0):
+                <= datetime.datetime(date_from.year, date_from.month, date_from.day, TIME_TYPE_DAY_TO.hour,
+                                     TIME_TYPE_DAY_TO.minute, TIME_TYPE_DAY_TO.second):
             return 'day'
-        if datetime.datetime(date_from.year, date_from.month, date_from.day, 22, 0, 0, 0) \
+        if datetime.datetime(date_from.year, date_from.month, date_from.day, TIME_TYPE_NIGHT_FROM.hour,
+                             TIME_TYPE_NIGHT_FROM.minute, TIME_TYPE_NIGHT_FROM.second) \
                 <= date_from \
                 < date_to \
-                <= datetime.datetime(date_from.year, date_from.month, date_from.day + 1, 6, 0, 0, 0):
+                <= datetime.datetime(date_from.year, date_from.month, date_from.day + 1, TIME_TYPE_NIGHT_TO.hour,
+                                     TIME_TYPE_NIGHT_TO.minute, TIME_TYPE_NIGHT_TO.second):
             return 'night'
         return 'unknown'
 
