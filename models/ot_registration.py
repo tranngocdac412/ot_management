@@ -53,7 +53,8 @@ class OTRegistration(models.Model):
     def action_submit(self):
         for record in self:
             if record.env.user.has_group('ot_management.group_ot_management_dl'):
-                record.state = 'done'
+                record.state = 'approved'
+                self.send_mail('new_request_to_dl_template')
             elif record.env.user.has_group('ot_management.group_ot_management_pm'):
                 record.state = 'approved'
                 self.send_mail('new_request_to_dl_template')
@@ -133,8 +134,14 @@ class OTRegistration(models.Model):
                 record.user_group = 'employee'
 
     def get_link_record(self):
-        for r in self:
-            return '/ot_management/%s' % r.id
+        for record in self:
+            return '/ot_management/%s' % record.id
+
+    @api.depends('ot_registration_line_ids')
+    def _compute_ot_month(self):
+        for record in self:
+            if record.ot_registration_line_ids:
+                record.ot_month = datetime.datetime.date(record.ot_registration_line_ids[0].date_from)
 
     # def send_mail(self):
     #     template_id = self.env.ref('ot_management.email_template').id
@@ -150,7 +157,7 @@ class OTRegistration(models.Model):
     project_id = fields.Many2one('project.project', string='Project', required=True)
     manager_id = fields.Many2one('hr.employee', string='Approver', readonly=False,
                                  compute='get_project_manager', store=True, required=True)
-    ot_month = fields.Date(string='OT Month', readonly=True)
+    ot_month = fields.Date(string='OT Month', compute='_compute_ot_month', readonly=True, store=True)
     employee_id = fields.Many2one('hr.employee', string='Employee', readonly=True, default=lambda self: self.get_user())
     department_leader_id = fields.Many2one('hr.employee', string='Department lead', readonly=True,
                                            default=lambda self: self.get_default_department_leader())
