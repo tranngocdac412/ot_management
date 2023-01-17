@@ -27,13 +27,16 @@
                             confirm="Set OT request to Draft?"
                             />
                     <button name="action_submit" string="Submit" states="draft" type="object"
-                            icon="fa-reply text-warning" groups="ot_management.group_ot_management_employee"/>
+                            icon="fa-reply text-warning" groups="ot_management.group_ot_management_employee"
+                            confirm="Are you sure to SUBMIT the OT request"/>
                     <button name="button_pm_approve" string="PM Approve" type="object"
                             attrs="{'invisible': ['|',('user_group','!=','pm'), ('state', '!=', 'to_approve')]}"
-                            icon="fa-reply text-warning" groups="ot_management.group_ot_management_pm"/>
+                            icon="fa-reply text-warning" groups="ot_management.group_ot_management_pm"
+                            confirm="Are you sure to APPROVE the OT request"/>
                     <button name="button_dl_approve" string="DL Approve" type="object"
                             attrs="{'invisible': ['|',('user_group','!=','dl'), ('state', '!=', 'approved')]}"
-                            icon="fa-reply text-warning" groups="ot_management.group_ot_management_dl"/>
+                            icon="fa-reply text-warning" groups="ot_management.group_ot_management_dl"
+                            confirm="Are you sure to APPROVE the OT request"/>
                     <button name="refuse_request" type="object" string="Refuse" class="oe_highlight"
                             attrs="{'invisible':[
                             '&amp;',
@@ -44,7 +47,7 @@
                             ('state', '!=', 'approved'),
                             ('user_group','!=','dl')
                             ]}"
-                            confirm="Are you sure to Refuse the OT request?"/>
+                            confirm="Are you sure to REFUSE the OT request?"/>
 <!--                    <button name="refuse_request" type="object" string="HR Refuse" class="oe_highlight"-->
 <!--                            confirm="Are you sure to Refuse the OT request?" invisible="1"/>-->
                     <field name="state" widget="statusbar"/>
